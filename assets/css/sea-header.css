@@ -107,10 +107,9 @@
   }
   .sun svg { display: block; width: 100%; height: 100%; }
 
-  /* ---------- Sky: clouds and gulls ----------
+  /* ---------- Sky: clouds ----------
      A gentle counterpoint to the sea. Clouds drift a few art pixels back and
-     forth on long, unrelated periods. The gull beats its wings twice
-     and glides, on loops close to the wave cycle but never in step with it. */
+     forth on long, unrelated periods. */
   .sky {
     position: absolute;
     left: 0; right: 0; top: 0;
@@ -125,35 +124,14 @@
   .cloud svg { display: block; width: 100%; height: 100%; }
   .cloud--b { width: calc(var(--px) * 14); height: calc(var(--px) * 4); }
   .cloud--c { width: calc(var(--px) * 18); height: calc(var(--px) * 5); }
-  /* One small cloud under the title, one cloud and the gull out towards the
-     right edge, clear of the text. */
+  /* One small cloud under the title, one out towards the right edge,
+     clear of the text. */
   .cloud--b { left: 3%;  bottom: calc(var(--px) * 1); }
   .cloud--c { right: calc(2% + var(--px) * 6); bottom: calc(var(--px) * 20); }   /* room for its drift */
-  .bird--1  { right: 14%; bottom: calc(var(--px) * 13); }
   @media (max-width: 640px) {
     .cloud--c { bottom: calc(var(--px) * 2); }
-    .bird--1  { right: 34%; bottom: calc(var(--px) * 2); }
   }
   @keyframes drift { to { transform: translateX(calc(var(--px) * 6)); } }
-
-  .bird {
-    position: absolute;
-    animation: glide-x var(--gx) steps(5, end) var(--o, 0s) infinite alternate;
-  }
-  .bird-bob { animation: glide-y var(--gy) steps(1, end) var(--o, 0s) infinite; }
-  .bird-win {
-    width: calc(var(--px) * 7);
-    height: calc(var(--px) * 4);
-    overflow: hidden;
-  }
-  .bird-sheet {
-    height: calc(var(--px) * 4 * 32);
-    animation: flap var(--f) steps(32, end) var(--o, 0s) infinite;
-  }
-  .bird-sheet svg { display: block; width: 100%; height: 100%; }
-  @keyframes flap    { to { transform: translateY(calc(var(--px) * -4 * 32)); } }
-  @keyframes glide-x { to { transform: translateX(calc(var(--px) * -5)); } }
-  @keyframes glide-y { 50% { transform: translateY(calc(var(--px) * -1)); } }
 
   /* ---------- Sea ----------
      Each layer is a sprite sheet: 48 frames of one wave cycle stacked
@@ -321,7 +299,7 @@
   @media (prefers-reduced-motion: reduce) {
     .typed, .swap, .swap-inner, .tagline, .cursor, .edit-cursor,
     .sun, .sheet, .glint, .splash-sheet, .lamp, .halo,
-    .cloud, .bird, .bird-bob, .bird-sheet { animation: none; }
+    .cloud { animation: none; }
     .splash { display: none; }
     .lamp { fill: var(--lamp); }
     .typed { max-width: none; }

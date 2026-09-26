@@ -337,7 +337,7 @@ params = {
 }
 
 
-# ---------- Sky: clouds and gulls ----------
+# ---------- Sky: clouds ----------
 def pixels(rows, ch):
     """ASCII art -> SVG path of 1x1 runs for character ch."""
     d = []
@@ -376,25 +376,6 @@ def cloud(rows):
     return (f'<svg viewBox="0 0 {w} {h}" width="{w}" height="{h}" shape-rendering="crispEdges">'
             f'<path style="fill:var(--cloud)" d="{pixels(rows, "#")}"/>'
             f'<path style="fill:var(--cloud-shade)" d="{pixels(rows, "+")}"/></svg>')
-
-# Gull poses, 7 x 4. Two wingbeats, then a long glide.
-GULL = {
-    "up":    ["#.....#", ".#...#.", "..###..", "......."],
-    "level": [".......", "##...##", "..###..", "......."],
-    "down":  [".......", ".......", ".#####.", "#.....#"],
-    "glide": [".......", ".#...#.", "#.###.#", "......."],
-}
-BIRD_FRAMES = ["up", "level", "down", "level"] * 2 + ["glide"] * 24
-BIRD_N = len(BIRD_FRAMES)
-
-def gull_sheet():
-    d = []
-    for i, pose in enumerate(BIRD_FRAMES):
-        rows = GULL[pose]
-        # each frame sits 4 rows below the last
-        d.append(re.sub(r"M(\d+) (\d+)", lambda m: f"M{m.group(1)} {int(m.group(2)) + 4 * i}", pixels(rows, "#")))
-    return (f'<svg viewBox="0 0 7 {4 * BIRD_N}" shape-rendering="crispEdges">'
-            f'<path style="fill:var(--bird)" d="{"".join(d)}"/></svg>')
 
 # ---------- Title loop: a terminal edit, c -> sea -> c ----------
 LOOP = 14.0
@@ -443,13 +424,12 @@ if __name__ == "__main__":
     for k, rows in CLOUDS.items():
         html = html.replace("{{cloud_" + k + "}}", cloud(rows))
         html = html.replace("{{CW_" + k + "}}", str(len(rows[0]))).replace("{{CH_" + k + "}}", str(len(rows)))
-    html = html.replace("{{gull}}", gull_sheet())
     for n, p in params.items():
         svg = layer(n, p)
         vbw = SHEET if n == "front" else 1000
         svg = svg.replace("{VBW}", str(vbw)).replace("{PX0}", "0")
         html = html.replace("{{" + n + "}}", svg)
-    for k, v in dict(N=N, HF=HF, CYCLE=CYCLE, LOOP=LOOP, SW=SW, SWL=SW_L, BIRD_N=BIRD_N, SH=SH, LIFT=LIFT, SHEET=SHEET).items():
+    for k, v in dict(N=N, HF=HF, CYCLE=CYCLE, LOOP=LOOP, SW=SW, SWL=SW_L, SH=SH, LIFT=LIFT, SHEET=SHEET).items():
         html = html.replace("{{" + k + "}}", f"{v:g}")
     open(out, "w").write(html)
     print("bytes", len(html), "wall column", XW)
