@@ -1,4 +1,5 @@
-{{ define "header" }}{{ partial "sea-header.html" . }}{{ end }}
+{{ define "header" }}{{ partial "sea-header.html" . }}
+<div class="motion-bar"><div class="motion-slot" id="motion-slot"></div></div>{{ end }}
 {{ define "main" }}
 {{ with .Content }}<div class="intro">{{ . }}</div>{{ end }}
 {{ $posts := where site.RegularPages "Section" "posts" }}

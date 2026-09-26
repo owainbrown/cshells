@@ -11,7 +11,8 @@ Cycle (phi 0..1, peak at 0.5):
   fall    foam slides down the back of each wave and thins out; backwash
           slides off the wall on the real surface
 """
-import math, random
+import math
+import re, random
 
 W = 48          # tile width (art px)
 HF = 16         # layer frame height
@@ -158,10 +159,10 @@ def shore(p):
     # Plume particles: launch frame offset, x velocity (+ is over the pier),
     # y velocity (up). Most go up and inland; a few fall back seaward.
     parts = []
-    for _ in range(170):
+    for _ in range(145):
         lo = min(int(rnd.expovariate(0.55)), 6)
-        vy = rnd.uniform(2.6, 8.4) * (1 - 0.08 * lo)
-        vx = rnd.gauss(0.95, 0.5)
+        vy = rnd.uniform(2.4, 7.75) * (1 - 0.08 * lo)   # apex about 29 rows
+        vx = rnd.gauss(0.87, 0.46)
         x0 = SW_L - 1 + rnd.uniform(-1.5, 1.0)
         parts.append((lo, x0, vx, vy))
 
@@ -271,7 +272,7 @@ def shore(p):
         # --- the face: white water hugging the wall as the crest hits ---
         k = i - impact
         if 0 <= k <= 4:
-            jet = [PIER_H + 5, PIER_H + 12, PIER_H + 17, PIER_H + 14, PIER_H + 8][k]
+            jet = [PIER_H + 4, PIER_H + 10, PIER_H + 14, PIER_H + 12, PIER_H + 7][k]
             for y in range(hs[-1] - 2, jet):
                 for dc in (-2, -1, 0, 1):
                     c = SW_L - 1 + dc
@@ -335,6 +336,66 @@ params = {
     "front": dict(f=1, f2=3, drift=48, amin=2.0, amax=5.5, base=3.5, rise=2.0, r=0.8),
 }
 
+
+# ---------- Sky: clouds and gulls ----------
+def pixels(rows, ch):
+    """ASCII art -> SVG path of 1x1 runs for character ch."""
+    d = []
+    for y, row in enumerate(rows):
+        x = 0
+        while x < len(row):
+            if row[x] == ch:
+                x0 = x
+                while x < len(row) and row[x] == ch:
+                    x += 1
+                d.append(f"M{x0} {y}h{x - x0}v1h-{x - x0}z")
+            else:
+                x += 1
+    return "".join(d)
+
+CLOUDS = {
+    "a": ["      #####           ",
+          "   ########## ####    ",
+          "  #################   ",
+          " #####################",
+          "######################",
+          " ++++++++++++++++++++ "],
+    "b": ["    #####     ",
+          "  ########### ",
+          "##############",
+          " ++++++++++++ "],
+    "c": ["     ####  ###    ",
+          "  ############### ",
+          "##################",
+          " #################",
+          "  ++++++++++++++  "],
+}
+
+def cloud(rows):
+    w, h = len(rows[0]), len(rows)
+    return (f'<svg viewBox="0 0 {w} {h}" width="{w}" height="{h}" shape-rendering="crispEdges">'
+            f'<path style="fill:var(--cloud)" d="{pixels(rows, "#")}"/>'
+            f'<path style="fill:var(--cloud-shade)" d="{pixels(rows, "+")}"/></svg>')
+
+# Gull poses, 7 x 4. A few wingbeats, then a long glide.
+GULL = {
+    "up":    ["#.....#", ".#...#.", "..###..", "......."],
+    "level": [".......", "##...##", "..###..", "......."],
+    "down":  [".......", ".......", ".#####.", "#.....#"],
+    "glide": [".......", ".#...#.", "#.###.#", "......."],
+}
+BIRD_FRAMES = ["up", "level", "down", "level"] * 3 + ["glide"] * 20
+BIRD_N = len(BIRD_FRAMES)
+
+def gull_sheet():
+    d = []
+    for i, pose in enumerate(BIRD_FRAMES):
+        rows = GULL[pose]
+        # each frame sits 4 rows below the last
+        d.append(re.sub(r"M(\d+) (\d+)", lambda m: f"M{m.group(1)} {int(m.group(2)) + 4 * i}", pixels(rows, "#")))
+    return (f'<svg viewBox="0 0 7 {4 * BIRD_N}" shape-rendering="crispEdges">'
+            f'<path style="fill:var(--bird)" d="{"".join(d)}"/></svg>')
+
 # ---------- Title loop: a terminal edit, c -> sea -> c ----------
 LOOP = 14.0
 events = [
@@ -379,12 +440,16 @@ if __name__ == "__main__":
     html = open(tpl).read()
     html = html.replace("/*{{title_kf}}*/", title_kf)
     html = html.replace("{{shore}}", shore(params["front"]))
+    for k, rows in CLOUDS.items():
+        html = html.replace("{{cloud_" + k + "}}", cloud(rows))
+        html = html.replace("{{CW_" + k + "}}", str(len(rows[0]))).replace("{{CH_" + k + "}}", str(len(rows)))
+    html = html.replace("{{gull}}", gull_sheet())
     for n, p in params.items():
         svg = layer(n, p)
         vbw = SHEET if n == "front" else 1000
         svg = svg.replace("{VBW}", str(vbw)).replace("{PX0}", "0")
         html = html.replace("{{" + n + "}}", svg)
-    for k, v in dict(N=N, HF=HF, CYCLE=CYCLE, LOOP=LOOP, SW=SW, SWL=SW_L, SH=SH, LIFT=LIFT, SHEET=SHEET).items():
+    for k, v in dict(N=N, HF=HF, CYCLE=CYCLE, LOOP=LOOP, SW=SW, SWL=SW_L, BIRD_N=BIRD_N, SH=SH, LIFT=LIFT, SHEET=SHEET).items():
         html = html.replace("{{" + k + "}}", f"{v:g}")
     open(out, "w").write(html)
     print("bytes", len(html), "wall column", XW)

@@ -46,9 +46,7 @@ def main():
             sys.exit(f"split.py: colour token {token!r} survived; check the template")
 
     header = html[html.index('<header class="site-header"'):html.index("</header>") + 9]
-    header = header.replace(
-        '<p class="tagline">by the sea shore</p>',
-        '<p class="tagline">by the sea shore</p>\n  <div class="motion-slot" id="motion-slot"></div>')
+    # The pause control sits under the header: layouts/index.html
 
     PARTIAL.write_text(f"{{{{/* {BANNER} */}}}}\n{header}\n")
     CSS.write_text(f"/* {BANNER} */\n{style.strip()}\n")

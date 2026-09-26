@@ -24,6 +24,7 @@
     --glint: #ffffff;
     --stone-top: #cbbfa8; --stone: #a8997f; --mortar: #8a7c65; --stone-wet: #5f5648;
     --tower-light: #f4f4f0; --tower-dark: #1d2230; --lamp: #ffe27a; --lamp-off: #c9b25a;
+    --cloud: #ffffff; --cloud-shade: #e2f3fa; --bird: #3b5a75;
     --pier-w: min(30vw, calc(var(--px) * 72));
   }
   @media (max-width: 640px) { :root { --px: 3px; } }
@@ -43,6 +44,7 @@
       --glint: #f3f0d0;
       --stone-top: #5d6480; --stone: #474e66; --mortar: #363c52; --stone-wet: #2a2f42;
       --tower-light: #c9ccd6; --tower-dark: #0d111d; --lamp: #fff1a8; --lamp-off: #6b6440;
+      --cloud: #27365c; --cloud-shade: #1f2b4b; --bird: #8a97c4;
     }
   }
   :root[data-theme="dark"] {
@@ -59,6 +61,7 @@
     --glint: #f3f0d0;
     --stone-top: #5d6480; --stone: #474e66; --mortar: #363c52; --stone-wet: #2a2f42;
     --tower-light: #c9ccd6; --tower-dark: #0d111d; --lamp: #fff1a8; --lamp-off: #6b6440;
+    --cloud: #27365c; --cloud-shade: #1f2b4b; --bird: #8a97c4;
   }
 
   * { box-sizing: border-box; }
@@ -167,6 +170,63 @@
     animation: bob 4s steps(1) infinite;
   }
   .sun svg { display: block; width: 100%; height: 100%; }
+
+  /* ---------- Sky: clouds and gulls ----------
+     A gentle counterpoint to the sea. Clouds drift a few art pixels back and
+     forth on long, unrelated periods. The gulls beat their wings a few times
+     and glide, on loops close to the wave cycle but never in step with it. */
+  .sky {
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    bottom: calc(var(--px) * 32);
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .cloud {
+    position: absolute;
+    animation: drift var(--d) steps(12, end) var(--o, 0s) infinite alternate;
+  }
+  .cloud svg { display: block; width: 100%; height: 100%; }
+  .cloud--a { width: calc(var(--px) * {{CW_a}}); height: calc(var(--px) * {{CH_a}}); }
+  .cloud--b { width: calc(var(--px) * {{CW_b}}); height: calc(var(--px) * {{CH_b}}); }
+  .cloud--c { width: calc(var(--px) * {{CW_c}}); height: calc(var(--px) * {{CH_c}}); }
+  /* Placed clear of the title: out to the right on wide screens, and in the
+     strip between the tagline and the sea on phones. */
+  .cloud--a { left: 46%; bottom: calc(var(--px) * 9); }
+  .cloud--b { left: 28%; bottom: calc(var(--px) * 1); }
+  .cloud--c { left: 72%; bottom: calc(var(--px) * 20); }
+  .bird--1  { left: 60%; bottom: calc(var(--px) * 13); }
+  .bird--2  { left: 66%; bottom: calc(var(--px) * 17); }
+  @media (max-width: 640px) {
+    .cloud--a { left: 2%;  bottom: calc(var(--px) * 1); }
+    .cloud--c { left: 44%; bottom: calc(var(--px) * 2); }
+    .cloud--b, .bird--2 { display: none; }
+    .bird--1  { left: 30%; bottom: calc(var(--px) * 5); }
+  }
+  @keyframes drift { to { transform: translateX(calc(var(--px) * 12)); } }
+
+  .bird {
+    position: absolute;
+    animation: glide-x var(--gx) steps(10, end) var(--o, 0s) infinite alternate;
+  }
+  .bird-bob { animation: glide-y var(--gy) steps(1, end) var(--o, 0s) infinite; }
+  .bird-win {
+    width: calc(var(--px) * 7);
+    height: calc(var(--px) * 4);
+    overflow: hidden;
+  }
+  .bird-sheet {
+    height: calc(var(--px) * 4 * {{BIRD_N}});
+    animation: flap var(--f) steps({{BIRD_N}}, end) var(--o, 0s) infinite;
+  }
+  .bird-sheet svg { display: block; width: 100%; height: 100%; }
+  @keyframes flap    { to { transform: translateY(calc(var(--px) * -4 * {{BIRD_N}})); } }
+  @keyframes glide-x { to { transform: translateX(calc(var(--px) * -10)); } }
+  @keyframes glide-y {
+    25% { transform: translateY(calc(var(--px) * -1)); }
+    50% { transform: translateY(calc(var(--px) * -2)); }
+    75% { transform: translateY(calc(var(--px) * -1)); }
+  }
 
   /* ---------- Sea ----------
      Each layer is a sprite sheet: {{N}} frames of one wave cycle stacked
@@ -300,7 +360,8 @@
   /* ---------- Reduced motion: still frame, "sea shells" ---------- */
   @media (prefers-reduced-motion: reduce) {
     .typed, .swap, .swap-inner, .tagline, .cursor, .edit-cursor,
-    .sun, .sheet, .glint, .splash-sheet, .lamp, .halo { animation: none; }
+    .sun, .sheet, .glint, .splash-sheet, .lamp, .halo,
+    .cloud, .bird, .bird-bob, .bird-sheet { animation: none; }
     .splash { display: none; }
     .lamp { fill: var(--lamp); }
     .typed { max-width: none; }
@@ -377,6 +438,17 @@
     <div class="splash"><div class="splash-sheet">
       {{shore}}
     </div></div>
+  </div>
+  <div class="sky" aria-hidden="true">
+    <div class="cloud cloud--b" style="--d:47s; --o:-12s">{{cloud_b}}</div>
+    <div class="cloud cloud--a" style="--d:41s; --o:-30s">{{cloud_a}}</div>
+    <div class="cloud cloud--c" style="--d:53s; --o:-8s">{{cloud_c}}</div>
+    <div class="bird bird--1" style="--f:7.6s; --gx:31s; --gy:11s; --o:-2.1s"><div class="bird-bob"><div class="bird-win"><div class="bird-sheet">
+      {{gull}}
+    </div></div></div></div>
+    <div class="bird bird--2" style="--f:8.3s; --gx:37s; --gy:13s; --o:-5.4s"><div class="bird-bob"><div class="bird-win"><div class="bird-sheet">
+      {{gull}}
+    </div></div></div></div>
   </div>
 </header>
 
