@@ -1,0 +1,33 @@
+baseURL = "https://cshellsbytheseashore.dev/"
+locale = "en-GB"
+title = "C Shells"
+enableRobotsTXT = true
+
+[params]
+  description = "Notes on building mobile apps and the tools around them, from an engineering manager who still writes the code."
+  author = "Owain Brown"
+  tagline = "by the sea shore"
+  github = "https://github.com/owainbrown/cshells"
+
+[module.hugoVersion]
+  min = "0.166.0"
+
+[markup.highlight]
+  noClasses = false
+  codeFences = true
+
+[markup.goldmark.renderer]
+  unsafe = false
+
+[taxonomies]
+  tag = "tags"
+
+[permalinks]
+  posts = "/:year/:slug/"
+
+[pagination]
+  pagerSize = 20
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]

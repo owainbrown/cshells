@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="{{ site.Language.Locale | default "en-GB" }}">
+<head>
+{{ partial "head.html" . }}
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+{{ block "header" . }}{{ partial "title-bar.html" . }}{{ end }}
+<main id="main" class="page cs-root">
+{{ block "main" . }}{{ end }}
+</main>
+{{ partial "footer.html" . }}
+<script src="{{ "js/motion.js" | relURL }}" defer></script>
+<script src="{{ "js/demo-host.js" | relURL }}" defer></script>
+</body>
+</html>

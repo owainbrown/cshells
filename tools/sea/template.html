@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C Shells Header</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    --px: 4px;                  /* one art pixel */
+    --sky: #cdeefa;
+    --ink: #13223a;
+    --muted: #3b5a75;
+    --accent: #f2784b;
+    --sun: #ffd23f;
+    --foam: #ffffff;
+    --back: #8ccbe0;  --back-light: #b4e0ee;
+    --mid: #4a9fc8;   --mid-light: #7cc0dd;
+    --front: #226fa6; --front-light: #3f8fc4;
+    --deep: #174f7d;
+    --glint: #ffffff;
+    --stone-top: #cbbfa8; --stone: #a8997f; --mortar: #8a7c65; --stone-wet: #5f5648;
+    --tower-light: #f4f4f0; --tower-dark: #1d2230; --lamp: #ffe27a; --lamp-off: #c9b25a;
+    --pier-w: min(30vw, calc(var(--px) * 72));
+  }
+  @media (max-width: 640px) { :root { --px: 3px; } }
+  @media (max-width: 360px) { :root { --px: 2px; } }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --sky: #141b33;
+      --ink: #eef3ff;
+      --muted: #9aa9d6;
+      --accent: #ff9166;
+      --sun: #f3f0d0;
+      --foam: #cfe3ff;
+      --back: #2c4675;  --back-light: #3b5a8c;
+      --mid: #22396a;   --mid-light: #30528a;
+      --front: #182c56; --front-light: #25427a;
+      --deep: #101f40;
+      --glint: #f3f0d0;
+      --stone-top: #5d6480; --stone: #474e66; --mortar: #363c52; --stone-wet: #2a2f42;
+      --tower-light: #c9ccd6; --tower-dark: #0d111d; --lamp: #fff1a8; --lamp-off: #6b6440;
+    }
+  }
+  :root[data-theme="dark"] {
+    --sky: #141b33;
+    --ink: #eef3ff;
+    --muted: #9aa9d6;
+    --accent: #ff9166;
+    --sun: #f3f0d0;
+    --foam: #cfe3ff;
+    --back: #2c4675;  --back-light: #3b5a8c;
+    --mid: #22396a;   --mid-light: #30528a;
+    --front: #182c56; --front-light: #25427a;
+    --deep: #101f40;
+    --glint: #f3f0d0;
+    --stone-top: #5d6480; --stone: #474e66; --mortar: #363c52; --stone-wet: #2a2f42;
+    --tower-light: #c9ccd6; --tower-dark: #0d111d; --lamp: #fff1a8; --lamp-off: #6b6440;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--sky);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  /* ---------- Header ---------- */
+  .site-header {
+    position: relative;
+    overflow: hidden;
+    padding: 3rem 16px calc(var(--px) * 52 + 8px);
+    background: var(--sky);
+    font-family: "Press Start 2P", ui-monospace, monospace;
+  }
+
+  /* Every piece of the title is top-aligned in a 1.2em line box, so the
+     clipped boxes can't drag the baseline around. */
+  .title {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-weight: 400;
+    font-size: clamp(18px, 6.2vw, 48px);
+    line-height: 1.2;
+    letter-spacing: 0;          /* ch maths depends on this */
+    white-space: nowrap;
+  }
+  .title > span, .typed > span { vertical-align: top; }
+  .prompt { color: var(--muted); margin-right: 0.5ch; display: inline-block; }
+
+  /* Intro: "c shells" types in. After that the clip is released so the
+     line simply follows the width of the word being edited. */
+  .typed {
+    display: inline-block;
+    overflow: hidden;
+    max-width: 0;
+    animation:
+      type 2s steps(8, end) 0.4s forwards,
+      release 0.01s steps(1, end) 2.5s forwards;
+  }
+
+  /* The pun, as a terminal edit on a loop:
+     cursor jumps back, backspaces "c", types "sea", returns to the end;
+     later it backspaces "sea" and types "c" again. */
+  .word { position: relative; display: inline-block; vertical-align: top; }
+  .swap {
+    display: inline-block;
+    vertical-align: top;
+    width: 1ch;
+    height: 1.2em;
+    overflow: hidden;
+    color: var(--accent);
+    animation: edit-width {{LOOP}}s steps(1, end) 2.6s infinite;
+  }
+  .swap-inner {
+    display: block;
+    animation: edit-row {{LOOP}}s steps(1, end) 2.6s infinite;
+  }
+  .swap-inner span { display: block; line-height: 1.2; height: 1.2em; }
+
+  .cursor, .edit-cursor {
+    display: inline-block;
+    width: 0.6ch;
+    height: 0.9em;
+    background: var(--accent);
+  }
+  .cursor {
+    margin: 0.12em 0 0 0.15ch;
+    animation:
+      blink 1s steps(1) infinite,
+      end-cursor {{LOOP}}s steps(1, end) 2.6s infinite;
+  }
+  .edit-cursor {
+    position: absolute;
+    left: 100%;
+    top: 0.12em;
+    margin-left: 0.1ch;
+    visibility: hidden;
+    animation: edit-cursor {{LOOP}}s steps(1, end) 2.6s infinite;
+  }
+
+  .tagline {
+    position: relative;
+    z-index: 1;
+    margin: 1rem 0 0;
+    font-size: clamp(9px, 2.8vw, 16px);
+    line-height: 1.6;
+    color: var(--muted);
+    opacity: 0;
+    animation: appear 0.6s steps(3, end) 2.6s forwards;
+  }
+
+  /* ---------- Sun / moon ---------- */
+  .sun {
+    position: absolute;
+    top: calc(var(--px) * 2);
+    right: calc(var(--pier-w) + var(--px) * 30);
+    width: calc(var(--px) * 12);
+    height: calc(var(--px) * 12);
+    color: var(--sun);
+    animation: bob 4s steps(1) infinite;
+  }
+  .sun svg { display: block; width: 100%; height: 100%; }
+
+  /* ---------- Sea ----------
+     Each layer is a sprite sheet: {{N}} frames of one wave cycle stacked
+     vertically, shown one at a time through a window. The frames carry
+     the physics (height, sharpness, foam, uneven speed), so CSS only has
+     to step through them. All layers share one cycle so the crests
+     arrive together, with the back of the set a beat ahead of the front. */
+  .sea {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: calc(var(--px) * 52);
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .layer {
+    position: absolute;
+    left: 0; right: 0;
+    height: 100%;
+  }
+  .window {
+    position: relative;
+    height: calc(var(--px) * {{HF}});
+    overflow: hidden;
+  }
+  .sheet {
+    width: calc(var(--px) * 1000);
+    height: calc(var(--px) * {{HF}} * {{N}});
+    animation: frames {{CYCLE}}s steps({{N}}, end) infinite;
+  }
+  .sheet svg { display: block; width: 100%; height: 100%; }
+  .body {
+    position: absolute;
+    left: 0; right: 0;
+    top: calc(var(--px) * {{HF}});
+    bottom: 0;
+  }
+
+  .layer--back  { top: calc(var(--px) * 18); }
+  .layer--mid   { top: calc(var(--px) * 26); }
+  .layer--front { top: calc(var(--px) * 33); }
+  /* The front sheet is pinned to the pier face, so the same tile column
+     always meets the wall and the break lines up with the arriving crest
+     at every screen width. */
+  .layer--front .sheet {
+    position: absolute;
+    top: 0;
+    right: var(--pier-w);
+    width: calc(var(--px) * {{SHEET}});
+  }
+
+  /* ---------- The shore: Seaham's North Pier and its lighthouse ----------
+     Waves roll right into the pier's seaward face. The last stretch of
+     the front layer before the wall is redrawn by the same wave model with
+     shoaling, surge, spray and backwash, so it joins the open sea without
+     a seam and breaks exactly when a crest arrives. */
+  .splash {
+    position: absolute;
+    right: var(--pier-w);
+    top: calc(var(--px) * (33 - {{LIFT}}));
+    width: calc(var(--px) * {{SW}});
+    height: calc(var(--px) * {{SH}});
+    overflow: hidden;
+  }
+  .splash-sheet {
+    height: calc(var(--px) * {{SH}} * {{N}});
+    animation: splash-frames {{CYCLE}}s steps({{N}}, end) infinite;
+  }
+  .splash-sheet svg { display: block; width: 100%; height: 100%; }
+
+  .pier {
+    position: absolute;
+    right: 0; bottom: 0;
+    top: calc(var(--px) * 38);
+    width: var(--pier-w);
+    background:
+      linear-gradient(var(--stone-top) 0 calc(var(--px) * 2), transparent 0),
+      linear-gradient(to right, var(--stone-wet) 0 var(--px), transparent 0),
+      linear-gradient(transparent 0 calc(var(--px) * 6), rgb(0 0 0 / .18) 0 calc(var(--px) * 10), rgb(0 0 0 / .32) 0),
+      repeating-linear-gradient(transparent 0 calc(var(--px) * 3), var(--mortar) 0 calc(var(--px) * 4)),
+      repeating-linear-gradient(to right, transparent 0 calc(var(--px) * 7), var(--mortar) 0 calc(var(--px) * 8)),
+      var(--stone);
+    background-position: 0 0, 0 0, 0 0, 0 calc(var(--px) * 2), calc(var(--px) * 3) 0, 0 0;
+  }
+  .lighthouse {
+    position: absolute;
+    top: calc(var(--px) * 10);
+    right: calc(var(--pier-w) - var(--px) * 15);
+    width: calc(var(--px) * 12);
+    height: calc(var(--px) * 28);
+  }
+  .lighthouse svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .lamp { fill: var(--lamp-off); animation: lamp 5s steps(1, end) infinite; }
+  .halo { fill: var(--lamp); opacity: 0; animation: halo 5s steps(1, end) infinite; }
+  .layer--back  .sheet { animation-delay: -0.35s; }
+  .layer--mid   .sheet { animation-delay: -0.18s; }
+
+  .layer--back  .body { background: var(--back); }
+  .layer--mid   .body { background: var(--mid); }
+  .layer--front .body {
+    background: linear-gradient(var(--front) 0 var(--px), var(--deep) 0);
+  }
+
+  /* Glints on the water: each blinks on its own clock */
+  .glint {
+    position: absolute;
+    width: calc(var(--px) * 2);
+    height: var(--px);
+    background: var(--glint);
+    opacity: 0;
+    animation: glint var(--d) steps(1, end) var(--o) infinite;
+  }
+
+  /* ---------- Keyframes ---------- */
+  @keyframes type    { to { max-width: 8ch; } }
+  @keyframes release { to { max-width: 40ch; } }
+  @keyframes blink   { 50% { opacity: 0; } }
+  @keyframes appear  { to { opacity: 1; } }
+  @keyframes bob     { 50% { transform: translateY(var(--px)); } }
+  @keyframes frames  { to { transform: translateY(calc(var(--px) * {{HF}} * -{{N}})); } }
+  @keyframes splash-frames { to { transform: translateY(calc(var(--px) * {{SH}} * -{{N}})); } }
+  @keyframes lamp { 0%, 100% { fill: var(--lamp-off); } 70% { fill: var(--lamp); } 82% { fill: var(--lamp-off); } }
+  @keyframes halo { 0%, 100% { opacity: 0; } 70% { opacity: .55; } 82% { opacity: 0; } }
+  @keyframes glint {
+    0%, 100% { opacity: 0; }
+    6%       { opacity: 1; }
+    14%      { opacity: 0; }
+  }
+/*{{title_kf}}*/
+
+  /* ---------- Reduced motion: still frame, "sea shells" ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .typed, .swap, .swap-inner, .tagline, .cursor, .edit-cursor,
+    .sun, .sheet, .glint, .splash-sheet, .lamp, .halo { animation: none; }
+    .splash { display: none; }
+    .lamp { fill: var(--lamp); }
+    .typed { max-width: none; }
+    .swap { width: 3ch; }
+    .swap-inner { transform: translateY(-1.2em); }
+    .tagline { opacity: 1; }
+    .sheet { transform: translateY(calc(var(--px) * {{HF}} * -20)); }
+  }
+
+  /* ---------- Demo only ---------- */
+  .demo-controls { padding: 1.5rem 16px; }
+  .demo-controls button {
+    font: inherit;
+    padding: .5rem 1rem;
+    border: 1px solid var(--muted);
+    border-radius: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="header">
+  <h1 class="title" aria-label="C Shells">
+    <span class="prompt" aria-hidden="true">%</span><span class="typed" aria-hidden="true"><span class="word"><span class="swap"><span class="swap-inner"><span>c</span><span>sea</span></span></span><span class="edit-cursor"></span></span> shells</span><span class="cursor" aria-hidden="true"></span>
+  </h1>
+  <p class="tagline">by the sea shore</p>
+
+  <div class="sea" aria-hidden="true">
+    <div class="sun" aria-hidden="true">
+      <svg viewBox="0 0 12 12" shape-rendering="crispEdges">
+        <path fill="currentColor" d="M4 1H8V2H10V4H11V8H10V10H8V11H4V10H2V8H1V4H2V2H4Z"/>
+      </svg>
+    </div>
+
+    <div class="layer layer--back">
+      <div class="window"><div class="sheet">
+        {{back}}
+      </div></div>
+      <div class="body"></div>
+    </div>
+    <div class="layer layer--mid">
+      <div class="window"><div class="sheet">
+        {{mid}}
+      </div></div>
+      <div class="body"></div>
+    </div>
+    <div class="layer layer--front">
+      <div class="window"><div class="sheet">
+        {{front}}
+      </div></div>
+      <div class="body"></div>
+      <i class="glint" style="left:9%;  top:calc(var(--px) * 15); --d:5.3s; --o:-0.4s"></i>
+      <i class="glint" style="left:27%; top:calc(var(--px) * 17); --d:7.9s; --o:-3.1s"></i>
+      <i class="glint" style="left:44%; top:calc(var(--px) * 15); --d:6.1s; --o:-1.7s"></i>
+      <i class="glint" style="left:58%; top:calc(var(--px) * 16); --d:8.7s; --o:-5.2s"></i>
+      <i class="glint" style="left:18%; top:calc(var(--px) * 18); --d:5.9s; --o:-2.3s"></i>
+      <i class="glint" style="left:36%; top:calc(var(--px) * 18); --d:9.4s; --o:-6.6s"></i>
+    </div>
+    <div class="splash"><div class="splash-sheet">
+      {{shore}}
+    </div></div>
+    <div class="pier"></div>
+    <div class="lighthouse">
+      <svg viewBox="0 0 12 28" shape-rendering="crispEdges">
+        <path class="halo" d="M1 2h1v1h-1zM10 2h1v1h-1zM0 4h2v2h-2zM10 4h2v2h-2zM1 7h1v1h-1zM10 7h1v1h-1z"/>
+        <path style="fill:var(--tower-dark)" d="M5 0h2v1h-2zM4 1h4v1h-4zM3 2h6v1h-6zM3 3h1v4h-1zM8 3h1v4h-1zM1 7h10v1h-10zM2 8h8v1h-8z"/>
+        <rect class="lamp" x="4" y="3" width="4" height="4"/>
+        <path style="fill:var(--tower-light)" d="M3 9h6v3h-6zM3 15h6v3h-6zM2 21h8v3h-8z"/>
+        <path style="fill:var(--tower-dark)" d="M3 12h6v3h-6zM2 18h8v3h-8zM2 24h8v4h-8z"/>
+        <path style="fill:var(--tower-dark)" d="M5 16h2v1h-2z"/>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<div class="demo-controls">
+  <button type="button" id="replay">Replay</button>
+</div>
+
+<script>
+  // Demo only: re-inserting the header restarts the intro.
+  document.getElementById('replay').addEventListener('click', function () {
+    var h = document.getElementById('header');
+    h.parentNode.replaceChild(h.cloneNode(true), h);
+  });
+</script>
+</body>
+</html>

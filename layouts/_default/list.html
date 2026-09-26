@@ -1,0 +1,5 @@
+{{ define "main" }}
+<div class="section-head"><h1 style="margin:0;font:800 36px/40px var(--font-heading);letter-spacing:-0.02em">{{ if eq .Kind "term" }}#{{ .Title | lower }}{{ else }}{{ .Title }}{{ end }}</h1></div>
+{{ with .Content }}<div class="intro">{{ . }}</div>{{ end }}
+<ul class="posts">{{ range .Pages }}<li>{{ partial "post-card.html" . }}</li>{{ else }}<li class="empty">Nothing here yet.</li>{{ end }}</ul>
+{{ end }}

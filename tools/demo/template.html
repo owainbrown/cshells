@@ -1,0 +1,42 @@
+<!doctype html>
+<!-- Demo template (ADR-009). Copy into static/demos/<post folder>/ and build inside <main>.
+     The CSP blocks all network access; add one pinned CDN to script-src only if a library is needed,
+     with an integrity attribute on its script tag. demo-kit is inlined at the bottom. -->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'">
+<title>Demo</title>
+<style>
+  :root { color-scheme: light dark; --bg: #ffffff; --ink: #13223a; --muted: #3b5a75; --accent: #f2784b; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1a2240; --ink: #eef3ff; --muted: #a3b1dc; --accent: #ff9166; } }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; }
+  main { padding: 16px; }
+  :root[data-motion="paused"] * { animation-play-state: paused !important; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <!-- demo here -->
+</main>
+<script>
+// Included by every demo. Reports the demo's height to the post, and follows
+// the page's pause control. Demos run sandboxed with an opaque origin, so
+// there is no storage and no access to the parent page.
+(function () {
+  function report() {
+    parent.postMessage({ type: 'cs-demo-height', height: document.documentElement.scrollHeight }, '*');
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(report).observe(document.documentElement);
+  window.addEventListener('load', report);
+  window.addEventListener('message', function (e) {
+    if (e.source !== parent || !e.data || e.data.type !== 'cs-motion') return;
+    if (e.data.paused) document.documentElement.setAttribute('data-motion', 'paused');
+    else document.documentElement.removeAttribute('data-motion');
+  });
+})();
+</script>
+</body>
+</html>

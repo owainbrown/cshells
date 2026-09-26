@@ -1,0 +1,10 @@
+{{ define "main" }}
+<article class="cs-prose">
+  <h1>{{ .Title }}</h1>
+  {{ if .IsPage }}{{ if eq .Section "posts" }}
+  <p class="cs-byline"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 Jan 2006" }}</time> · {{ .ReadingTime }} min read{{ if .Draft }} · <strong>Draft</strong>{{ end }}</p>
+  {{ end }}{{ end }}
+  {{ .Content }}
+</article>
+{{ with .GetTerms "tags" }}<div class="post-tags">{{ range . }}<a class="cs-tag" href="{{ .RelPermalink }}">{{ .Title | lower }}</a>{{ end }}</div>{{ end }}
+{{ end }}

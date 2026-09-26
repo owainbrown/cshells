@@ -1,0 +1,6 @@
+<a class="cs-card" href="{{ .RelPermalink }}">
+  <span class="cs-card__date"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 Jan 2006" }}</time> · {{ .ReadingTime }} min{{ if .Draft }} · draft{{ end }}</span>
+  <h3 class="cs-card__title">{{ .Title }}</h3>
+  {{ with .Summary }}<p class="cs-card__summary">{{ . | plainify | truncate 180 }}</p>{{ end }}
+  <span class="cs-card__meta">{{ range .GetTerms "tags" }}<span class="cs-tag">{{ .Title | lower }}</span>{{ end }}{{ if .Params.demo }}<span class="cs-card__demo">Demo</span>{{ end }}</span>
+</a>

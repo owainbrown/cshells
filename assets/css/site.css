@@ -1,0 +1,207 @@
+/* ---------- Fonts: self-hosted Latin subsets (ADR-006), OFL licences in /fonts ---------- */
+@font-face { font-family: "Press Start 2P"; font-weight: 400; font-display: swap; src: url("../fonts/press-start-2p-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Bricolage Grotesque"; font-weight: 700; font-display: swap; src: url("../fonts/bricolage-grotesque-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Bricolage Grotesque"; font-weight: 800; font-display: swap; src: url("../fonts/bricolage-grotesque-latin-800-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 400; font-display: swap; src: url("../fonts/atkinson-hyperlegible-next-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 400; font-style: italic; font-display: swap; src: url("../fonts/atkinson-hyperlegible-next-latin-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 700; font-display: swap; src: url("../fonts/atkinson-hyperlegible-next-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Mono"; font-weight: 400; font-display: swap; src: url("../fonts/atkinson-hyperlegible-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Mono"; font-weight: 600; font-display: swap; src: url("../fonts/atkinson-hyperlegible-mono-latin-600-normal.woff2") format("woff2"); }
+
+/* ---------- Page ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--surface); color: var(--ink); font-family: var(--font-body); font-size: 18px; line-height: 30px; }
+img { max-width: 100%; height: auto; }
+a { color: var(--accent-text); }
+.skip-link { position: absolute; left: -9999px; top: 0; }
+.skip-link:focus { left: 16px; top: 16px; z-index: 10; background: var(--surface-raised); padding: 8px 12px; outline: 2px solid var(--focus); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+::selection { background: var(--sun); color: var(--ink); }
+
+
+/* C Shells components. Every colour comes from a token; every class is cs-. */
+
+.cs-root {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 30px;
+}
+.cs-root ::selection { background: var(--sun); color: var(--ink); }
+.cs-root :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+/* ---------- Title bar: compact masthead for post pages ---------- */
+.cs-titlebar { background: var(--sky); }
+.cs-titlebar__inner {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  max-width: var(--content-max); margin: 0 auto;
+}
+.cs-titlebar__name {
+  font-family: var(--font-display); font-size: 20px; line-height: 24px;
+  color: var(--ink); text-decoration: none; white-space: nowrap;
+}
+.cs-titlebar__prompt { color: var(--muted); margin-right: 0.5ch; }
+.cs-titlebar__word { color: var(--accent); }
+.cs-titlebar__cursor {
+  display: inline-block; width: 0.6ch; height: 0.9em; margin-left: 0.15ch;
+  vertical-align: -0.05em; background: var(--accent);
+}
+.cs-titlebar__inner { flex-wrap: wrap; row-gap: var(--space-2); }
+.cs-titlebar__nav { display: flex; gap: var(--space-4); font-size: 15px; }
+@media (max-width: 480px) {
+  .cs-titlebar__name { font-size: 16px; line-height: 20px; }
+  .cs-titlebar__nav { gap: var(--space-3); }
+}
+.cs-titlebar__nav a { color: var(--ink); text-decoration: none; }
+.cs-titlebar__nav a[aria-current] { color: var(--accent-text); text-decoration: underline; text-underline-offset: 4px; }
+.cs-titlebar__sea { display: block; width: 100%; height: 12px; }
+.cs-titlebar__sea .w1 { fill: var(--front-light); }
+.cs-titlebar__sea .w2 { fill: var(--front); }
+.cs-titlebar__sea .w3 { fill: var(--deep); }
+.cs-titlebar__sea .fm { fill: var(--foam); }
+
+/* ---------- Post card ---------- */
+.cs-card {
+  display: grid; gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: inherit; text-decoration: none;
+  transition: transform 80ms steps(2), box-shadow 80ms steps(2);
+}
+.cs-card:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-step); }
+.cs-card__date { font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.cs-card__title { font-family: var(--font-heading); font-weight: 700; font-size: 23px; line-height: 28px; letter-spacing: -0.01em; margin: 0; color: var(--ink); text-wrap: balance; }
+.cs-card__summary { font-size: 15px; line-height: 22px; margin: 0; color: var(--ink); }
+.cs-card__meta { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.cs-card__demo { font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-text); }
+
+/* ---------- Tag ---------- */
+.cs-tag {
+  display: inline-block; padding: 0 var(--space-2);
+  font-size: 14px; line-height: 24px;
+  color: var(--ink); background: transparent;
+  border: 1px solid var(--border); text-decoration: none;
+}
+.cs-tag::before { content: "#"; color: var(--muted); }
+
+/* ---------- Buttons ---------- */
+.cs-button {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font: 600 15px/22px var(--font-body);
+  border: 2px solid var(--ink); border-radius: var(--radius-none);
+  cursor: pointer;
+}
+.cs-button--primary { background: var(--accent); color: var(--on-accent); box-shadow: var(--shadow-step); }
+.cs-button--primary:active { transform: translate(2px, 2px); box-shadow: var(--shadow-step-sm); }
+.cs-button--quiet { background: transparent; color: var(--ink); border-color: var(--border); }
+.cs-button__icon { width: 12px; height: 12px; fill: currentColor; shape-rendering: crispEdges; }
+
+/* ---------- Prose ---------- */
+.cs-prose { max-width: var(--measure); }
+.cs-prose > * + * { margin-top: var(--space-4); }
+.cs-prose h1 { font: 800 46px/50px var(--font-heading); letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+@media (max-width: 480px) { .cs-prose h1 { font-size: 36px; line-height: 40px; } }
+.cs-prose h2 { font: 800 30px/36px var(--font-heading); letter-spacing: -0.015em; margin-top: var(--space-8); text-wrap: balance; }
+.cs-prose h3 { font: 700 22px/28px var(--font-heading); letter-spacing: -0.01em; margin-top: var(--space-6); }
+.cs-prose p, .cs-prose ul, .cs-prose ol { margin-bottom: 0; }
+.cs-prose .cs-lead { font-size: 21px; line-height: 32px; }
+.cs-prose a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+.cs-prose code { font-family: var(--font-mono); font-size: .9em; padding: 1px 4px; border-radius: var(--radius-sm); background: var(--sky); color: var(--ink); }
+.cs-prose mark { background: var(--sun); color: var(--ink); padding: 0 2px; }
+.cs-prose blockquote { margin-left: 0; padding-left: var(--space-4); border-left: 4px solid var(--stone); color: var(--ink); font-style: italic; }
+.cs-prose ul { padding-left: 1.25em; list-style: square; }
+.cs-prose li::marker { color: var(--accent); }
+.cs-prose hr { border: 0; height: 4px; background: repeating-linear-gradient(90deg, var(--rule) 0 8px, transparent 8px 16px); }
+.cs-byline { font-size: 15px; line-height: 22px; color: var(--muted); }
+
+/* ---------- Code block: a terminal panel ---------- */
+.cs-code { background: var(--terminal); color: var(--terminal-ink); border-radius: var(--radius-none); overflow: hidden; }
+.cs-code__bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--terminal-muted);
+  border-bottom: 1px solid var(--terminal-muted);
+}
+.cs-code__bar b { font-weight: 400; color: var(--accent); }
+.cs-code pre { margin: 0; padding: var(--space-3) var(--space-4); overflow-x: auto; font: 15px/24px var(--font-mono); }
+.cs-code .c { color: var(--terminal-muted); }
+.cs-code .k { color: var(--accent); }
+.cs-code .s { color: var(--sun); }
+
+/* ---------- Callout ---------- */
+.cs-callout { padding: var(--space-4) var(--space-6) var(--space-4) var(--space-4); background: var(--surface-raised); border: 1px solid var(--border); display: grid; gap: var(--space-1); }
+.cs-callout__label { font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; display: flex; gap: var(--space-2); align-items: center; }
+.cs-callout__label::before { content: ""; width: 8px; height: 8px; background: currentColor; }
+.cs-callout--note .cs-callout__label { color: var(--note); }
+.cs-callout--warn .cs-callout__label { color: var(--warn); }
+.cs-callout--danger .cs-callout__label { color: var(--danger); }
+.cs-callout p { margin: 0; font-size: 16px; line-height: 26px; }
+
+/* ---------- Demo frame: chrome around a sandboxed iframe ---------- */
+.cs-demo { border: 2px solid var(--ink); background: var(--surface-raised); }
+.cs-demo__bar {
+  display: flex; justify-content: space-between; align-items: center; gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 2px solid var(--ink); background: var(--sky);
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink);
+}
+.cs-demo__bar b { font-weight: 400; color: var(--accent-text); }
+.cs-demo__stage { display: block; width: 100%; min-height: 160px; border: 0; background: var(--surface-raised); }
+.cs-demo__caption { padding: var(--space-2) var(--space-3); font-size: 14px; line-height: 20px; color: var(--muted); border-top: 1px solid var(--rule); }
+
+/* ---------- Footer ---------- */
+.cs-footer { background: var(--deep); color: var(--foam); }
+.cs-footer__inner { max-width: var(--content-max); margin: 0 auto; padding: var(--space-6) var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: space-between; font-size: 15px; line-height: 22px; }
+.cs-footer a { color: var(--foam); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-card, .cs-button { transition: none; }
+}
+
+/* ---------- SiteHeader integration ---------- */
+.site-header { padding-left: max(16px, var(--space-8)); padding-right: max(16px, var(--space-8)); }
+.site-header .title a { color: inherit; text-decoration: none; }
+.motion-slot { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 2; }
+.motion-slot .cs-button { background: var(--surface-raised); }
+@media (max-width: 640px) {
+  .motion-slot { position: relative; top: auto; right: auto; margin-top: var(--space-3); }
+  .motion-slot .cs-button { padding: 2px var(--space-2); font-size: 13px; line-height: 18px; }
+}
+/* ADR-007: the pause control stops every animation on the page */
+:root[data-motion="paused"] *, :root[data-motion="paused"] *::before { animation-play-state: paused !important; }
+
+/* ---------- Layout ---------- */
+.page { max-width: var(--content-max); margin: 0 auto; padding: var(--space-12) var(--space-4) var(--space-16); display: grid; gap: var(--space-8); }
+@media (min-width: 640px) { .page { padding-inline: var(--space-8); } }
+.intro { margin: 0; font-size: 21px; line-height: 32px; max-width: var(--measure); text-wrap: pretty; }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-4); border-bottom: 4px solid var(--ink); padding-bottom: var(--space-2); margin-bottom: var(--space-6); }
+.section-head h2 { margin: 0; font: 800 30px/36px var(--font-heading); letter-spacing: -0.015em; }
+.section-head a { font-size: 15px; }
+.posts { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-6); }
+.topics { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.empty { margin: 0; color: var(--muted); }
+.post-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-8); }
+.cs-prose > figure, .cs-prose > .cs-callout { max-width: none; }
+.cs-prose > p, .cs-prose > ul, .cs-prose > ol, .cs-prose > blockquote, .cs-prose > h2, .cs-prose > h3 { max-width: var(--measure); }
+.cs-prose { max-width: none; }
+
+/* ---------- Code: Chroma classes mapped onto terminal tokens ---------- */
+.cs-code .highlight, .cs-code pre { background: transparent !important; }
+.cs-code pre code { font: inherit; background: none; padding: 0; color: var(--terminal-ink); }
+.chroma .c, .chroma .c1, .chroma .cm, .chroma .cs, .chroma .ch, .chroma .cp, .chroma .cpf { color: var(--terminal-muted); }
+.chroma .k, .chroma .kc, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr, .chroma .kt, .chroma .nt, .chroma .nf, .chroma .nb { color: var(--accent); }
+.chroma .s, .chroma .s1, .chroma .s2, .chroma .sb, .chroma .sc, .chroma .sd, .chroma .se, .chroma .sh, .chroma .si, .chroma .sx, .chroma .sr, .chroma .ss, .chroma .m, .chroma .mi, .chroma .mf, .chroma .mh, .chroma .il { color: var(--sun); }
+
+/* ---------- Demo frames ---------- */
+.cs-demo { margin: 0; }
+.cs-demo iframe.cs-demo__stage { height: 360px; }
+
+/* Grid children must be allowed to shrink, or wide code blocks widen the page. */
+.page > * { min-width: 0; }
+body { min-height: 100vh; display: flex; flex-direction: column; }
+body > main { flex: 1 0 auto; width: 100%; }

@@ -1,0 +1,7 @@
+# Keep the workflow's actions current (ADR-002). Nothing else here has dependencies.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -1,0 +1,18 @@
+<header class="cs-titlebar">
+  <div class="cs-titlebar__inner">
+    <a class="cs-titlebar__name" href="{{ "/" | relURL }}" aria-label="C Shells, home"><span class="cs-titlebar__prompt" aria-hidden="true">%</span><span aria-hidden="true"><span class="cs-titlebar__word">sea</span> shells</span><span class="cs-titlebar__cursor" aria-hidden="true"></span></a>
+    <nav class="cs-titlebar__nav" aria-label="Main">
+      <a href="{{ "posts/" | relURL }}"{{ if eq .Section "posts" }} aria-current="page"{{ end }}>Posts</a>
+      <a href="{{ "about/" | relURL }}"{{ if eq .RelPermalink ("about/" | relURL) }} aria-current="page"{{ end }}>About</a>
+    </nav>
+  </div>
+  <svg class="cs-titlebar__sea" aria-hidden="true" shape-rendering="crispEdges">
+    <defs><pattern id="tb-sea" width="64" height="12" patternUnits="userSpaceOnUse">
+      <path class="w2" d="M0 12V8H8V6H16V4H32V6H40V8H64V12Z"/>
+      <path class="w1" d="M0 8H8V10H0ZM8 6H16V8H8ZM16 4H32V6H16ZM32 6H40V8H32ZM40 8H64V10H40Z"/>
+      <path class="fm" d="M20 2H28V4H20Z"/>
+      <rect class="w3" x="0" y="10" width="64" height="2"/>
+    </pattern></defs>
+    <rect width="100%" height="12" fill="url(#tb-sea)"/>
+  </svg>
+</header>

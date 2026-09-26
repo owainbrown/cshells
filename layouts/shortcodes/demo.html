@@ -1,0 +1,10 @@
+{{- /* Usage: {{< demo src="wave-cycle.html" caption="Scrub one wave cycle." height="360" >}}
+       The file lives in static/demos/<post folder>/. ADR-0009: sandboxed, scripts only. */ -}}
+{{- $src := .Get "src" -}}
+{{- $url := printf "demos/%s/%s" .Page.File.ContentBaseName $src | relURL -}}
+{{- $height := .Get "height" | default "360" -}}
+<figure class="cs-demo">
+  <div class="cs-demo__bar"><span><b>DEMO</b> {{ $src }}</span></div>
+  <iframe class="cs-demo__stage" src="{{ $url }}" title="{{ .Get "caption" | default $src }}" sandbox="allow-scripts" loading="lazy" referrerpolicy="no-referrer" style="height:{{ $height }}px" data-demo></iframe>
+  {{ with .Get "caption" }}<figcaption class="cs-demo__caption">{{ . }}</figcaption>{{ end }}
+</figure>

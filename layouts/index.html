@@ -1,0 +1,19 @@
+{{ define "header" }}{{ partial "sea-header.html" . }}{{ end }}
+{{ define "main" }}
+{{ with .Content }}<div class="intro">{{ . }}</div>{{ end }}
+{{ $posts := where site.RegularPages "Section" "posts" }}
+<section aria-labelledby="latest">
+  <div class="section-head"><h2 id="latest">Latest</h2>{{ if gt (len $posts) 5 }}<a href="{{ "posts/" | relURL }}">All posts</a>{{ end }}</div>
+  {{ with first 10 $posts }}
+  <ul class="posts">{{ range . }}<li>{{ partial "post-card.html" . }}</li>{{ end }}</ul>
+  {{ else }}
+  <p class="empty">The first post is on its way.</p>
+  {{ end }}
+</section>
+{{ with site.Taxonomies.tags }}
+<section aria-labelledby="topics">
+  <div class="section-head"><h2 id="topics">Topics</h2><a href="{{ "index.xml" | relURL }}">RSS</a></div>
+  <div class="topics">{{ range .ByCount }}<a class="cs-tag" href="{{ .Page.RelPermalink }}">{{ .Page.Title | lower }}</a>{{ end }}</div>
+</section>
+{{ end }}
+{{ end }}
