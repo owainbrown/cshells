@@ -22,11 +22,12 @@
   btn.type = 'button';
   btn.className = 'cs-button cs-button--quiet';
   slot.appendChild(btn);
-  var PAUSE = '<svg class="cs-button__icon" viewBox="0 0 3 3" aria-hidden="true"><path d="M0 0H1V3H0ZM2 0H3V3H2Z"/></svg>Pause waves';
-  var PLAY = '<svg class="cs-button__icon" viewBox="0 0 3 3" aria-hidden="true"><path d="M0 0H1V3H0ZM1 0.5H2V2.5H1ZM2 1H3V2H2Z"/></svg>Play waves';
+  var PAUSE = '<svg class="cs-button__icon" viewBox="0 0 3 3" aria-hidden="true"><path d="M0 0H1V3H0ZM2 0H3V3H2Z"/></svg><span>Pause<span class="motion-long"> waves</span></span>';
+  var PLAY = '<svg class="cs-button__icon" viewBox="0 0 3 3" aria-hidden="true"><path d="M0 0H1V3H0ZM1 0.5H2V2.5H1ZM2 1H3V2H2Z"/></svg><span>Play<span class="motion-long"> waves</span></span>';
   function render(paused) {
     btn.setAttribute('aria-pressed', String(paused));
     btn.innerHTML = paused ? PLAY : PAUSE;
+    btn.setAttribute('aria-label', paused ? 'Play waves' : 'Pause waves');   // phones show one word
   }
   render(saved === 'paused');
   btn.addEventListener('click', function () {

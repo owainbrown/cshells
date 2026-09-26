@@ -2,6 +2,7 @@
 title: "We don't know our most important dependency"
 date: 2026-09-26
 draft: false
+wip: true          # published, with the draft note at the top
 slug: "models-are-dependencies"
 summary: "We pin every package in the repo, then hand a large share of our work to a model we know only by reputation. What it would take to know it properly."
 tags: ["ai", "dependencies"]
