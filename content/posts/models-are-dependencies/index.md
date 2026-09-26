@@ -1,7 +1,7 @@
 ---
 title: "We don't know our most important dependency"
 date: 2026-09-26
-draft: true
+draft: false
 slug: "models-are-dependencies"
 summary: "We pin every package in the repo, then hand a large share of our work to a model we know only by reputation. What it would take to know it properly."
 tags: ["ai", "dependencies"]
@@ -81,21 +81,17 @@ The obvious objection is that models improve so quickly that careful characteris
 
 The objection also assumes that newer means better at our work, which is exactly what we haven't measured. Without the cases, adopting every release isn't keeping up, it's just changing models, and we can't tell a better model from a different one. With them, a new model costs an afternoon's re-run and a decision rather than weeks of finding out by feel. So the faster things move, the more the measurement is worth. And we don't have to keep up with the frontier anyway, only know what we're running. We don't put every iOS beta on client apps; we adopt when we've checked. Models deserve the same deliberate lag.
 
-## What I found when I looked
+## The first experiment
 
-{{< callout warn >}}Result pending. Replace this section once the experiment has run.{{< /callout >}}
+I'll start small. One real code review from our own history, on a pull request where we already know what a good review should catch. I'll run it 20 times with the model, prompt and harness we use today, all pinned, and record what each run flagged, what it missed, what it got wrong, how long it took and what it cost.
 
-*The experiment:* one real code review from our own history, on a pull request where we know what a good review should catch. Run it 20 times with the model, prompt and harness we use today, all pinned. Record what each run flagged, what it missed, what it got wrong, how long it took and what it cost.
-
-*What to report:* how many of the known issues were caught every time, sometimes or never; the spread of findings across runs; and any failure mode that showed up more than once. A short paragraph on what surprised me.
-
-*The demo sits here:* a grid of the 20 runs, one tile per run, coloured by which known issues each caught. The reader can sort the tiles, pick any two runs to compare side by side, and switch to a view of which issues were caught how often. Real data from the experiment, not illustrative numbers.
+What I want to know is how many of the known issues get caught every time, how many only sometimes and how many never; how much the findings vary from run to run; and whether any failure mode shows up more than once. I'll publish the results here, with the raw runs to explore, once it has run.
 
 ## Where I'm starting
 
 None of this is sophisticated. It's the curiosity we already apply to a networking library, pointed at the component that now writes a good share of our code. I think we haven't done it because models arrived as tools rather than dependencies, and we judge tools by how they feel to use. That was fine when they finished our lines; it isn't now they write our pull requests.
 
-So here's what I'm going to do on our side over the next month. First, a `models.yaml` for each active project and pipeline, including the tools people use day to day. Second, the review experiment above expanded into a proper set of cases, run five times each, with the model, prompt and harness pinned. Third, a written list of failure modes for that use, shared with everyone who reviews its output. I'll write up what the inventory turns up and what a month of measurement teaches us in a follow-up post.
+So here's what I'm going to do on our side over the next month. First, a `models.yaml` for each active project and pipeline, including the tools people use day to day. Second, that review experiment expanded into a proper set of cases, run five times each, with the model, prompt and harness pinned. Third, a written list of failure modes for that use, shared with everyone who reviews its output. I'll write up what the inventory turns up and what a month of measurement teaches us in a follow-up post.
 
 ## Sources
 

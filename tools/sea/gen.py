@@ -19,8 +19,12 @@ N = 48          # frames per cycle
 CYCLE = 7.0     # seconds
 SHEET = 997     # front sheet width; right-anchored at the pier face
 XW = (SHEET - 1) % W   # tile column that sits against the wall (36)
-SW, SH = 24, 36        # shore overlay: columns left of the wall, frame height
+SW_L, SW_R = 24, 26    # shore overlay: columns left of the wall, columns over the pier
+SW = SW_L + SW_R
+SH = 40                # shore frame height, bottom aligned with the front window
 LIFT = SH - HF         # overlay extends this far above the front window
+PIER_H = 11            # pier top, in rows above the front window's bottom
+SURGE = 17             # how far the break climbs the wall at its peak
 
 def smooth(phi):
     return ((1 - math.cos(2 * math.pi * phi)) / 2) ** 1.6
@@ -130,32 +134,127 @@ def layer(name, p):
           </svg>'''
 
 def shore(p):
-    """Front layer's last SW columns before the wall, redrawn with shoaling,
-    surge, spray and backwash. At its left edge it equals the tiled sea
-    exactly, so it blends in without a seam."""
-    rnd = random.Random(7)
+    """The break against the pier, drawn over the front layer, the wall and
+    the lighthouse.
+
+    Columns 0..SW_L-1 are the last stretch of sea before the wall: at the
+    left edge they equal the tiled sea exactly, so there's no seam. Columns
+    SW_L.. sit over the pier. Per cycle:
+      build     the crest shoals and steepens into the wall
+      impact    it piles up the face and bursts into a white plume that
+                climbs past the lighthouse
+      overtop   green water spills over the coping and runs across the pier,
+                and the plume rains down onto it
+      runback   the pier drains back towards the edge and pours off the wall
+                into the sea, leaving foam on the backwash
+    Everything is simulated frame by frame from the impact and has drained
+    before the cycle wraps, so the loop has no seam.
+    """
+    rnd = random.Random(11)
     impact = N // 2 - 1            # crest reaches the wall at phi = 0.5
-    parts = [(rnd.randint(0, 3), -rnd.uniform(0.2, 1.1), rnd.uniform(1.5, 3.2)) for _ in range(16)]
+    G = 1.05                       # gravity, rows per frame squared
+    TOP = SH - 1
+
+    # Plume particles: launch frame offset, x velocity (+ is over the pier),
+    # y velocity (up). Most go up and inland; a few fall back seaward.
+    parts = []
+    for _ in range(170):
+        lo = min(int(rnd.expovariate(0.55)), 6)
+        vy = rnd.uniform(2.6, 8.4) * (1 - 0.08 * lo)
+        vx = rnd.gauss(0.95, 0.5)
+        x0 = SW_L - 1 + rnd.uniform(-1.5, 1.0)
+        parts.append((lo, x0, vx, vy))
+
+    # Pre-simulate the plume and the water on the pier, frame by frame.
+    plume = {}                     # frame -> list of (x, y, streak)
+    sheet = {}                     # frame -> list of depths per pier column
+    pour = {}                      # frame -> amount pouring off the edge
+    depth = [0.0] * SW_R
+    for k in range(0, N - impact):
+        i = impact + k
+        pts = []
+        for lo, x0, vx, vy in parts:
+            ft = k - lo
+            if ft < 0:
+                continue
+            # Integrate analytically to the landing point, if any.
+            land = None
+            for f in range(ft + 1):
+                x = x0 + vx * f
+                y = PIER_H + 1 + vy * f - 0.5 * G * f * f
+                ground = PIER_H if x >= SW_L else PIER_H - 5
+                if f > 0 and y <= ground:
+                    land = (f, x)
+                    break
+            if land:
+                f, x = land
+                if f == ft and x >= SW_L:
+                    c = int(x) - SW_L
+                    if c < SW_R:
+                        depth[c] += 0.12
+                continue
+            x = x0 + vx * ft
+            y = PIER_H + 1 + vy * ft - 0.5 * G * ft * ft
+            speed_up = vy - G * ft
+            pts.append((x, y, speed_up > 2.5))
+        plume[i] = pts
+
+        # Green water over the coping, early in the impact.
+        if 1 <= k <= 5:
+            spill = [4.0, 5.0, 4.5, 3.5, 2.0][k - 1]
+            reach = 4 + 5 * k
+            for c in range(min(reach, SW_R)):
+                depth[c] = max(depth[c], spill * (1 - c / reach) ** 0.6)
+        # Momentum carries the first rush inland; after that the pier drains
+        # back to the edge, which pours into the sea.
+        new = depth[:]
+        if k <= 6:
+            for c in range(SW_R - 1, 0, -1):
+                m = new[c - 1] * 0.25
+                new[c - 1] -= m
+                new[c] += m
+        else:
+            for c in range(SW_R):
+                m = new[c] * 0.4
+                new[c] -= m
+                if c > 0:
+                    new[c - 1] += m
+                else:
+                    pour[i] = pour.get(i, 0) + m
+        decay = 0.93 if k <= 6 else 0.84
+        depth = [d * decay if d > 0.1 else 0.0 for d in new]
+        sheet[i] = depth[:]
+
     light, water, foam = [], [], []
+
+    def px(c, y, bottom, lst=foam):
+        # y is height above the frame bottom
+        if 0 <= c < SW_L + SW_R and 0 < y <= TOP:
+            lst.append(f"M{c} {bottom - y}h1v1h-1z")
+
     for i in range(N):
         phi = i / N
         s = smooth(phi)
         bottom = (i + 1) * SH
         t = (i - impact) / 12.0
-        surge = 12 * math.sin(math.pi * t) ** 0.8 if 0 <= t <= 1 else 0
+        surge = SURGE * 0.75 * math.sin(math.pi * t) ** 0.8 if 0 <= t <= 1 else 0
         bt = (i - impact - 8) / 18.0
+
+        # --- sea side of the wall ---
         hs, fs = [], []
-        for c in range(SW):
-            x = (XW - (SW - 1) + c) % W
+        for c in range(SW_L):
+            x = (XW - (SW_L - 1) + c) % W
             h, dist, level, wx = column(x, phi, p)
-            b = (c / (SW - 1)) ** 2
+            b = (c / (SW_L - 1)) ** 2
             h += b * 0.6 * max(0, h - level)                  # shoaling
-            wall = math.exp(-(SW - 1 - c) / (3.5 + 4 * max(t, 0)))
+            wall = math.exp(-(SW_L - 1 - c) / (5 + 6 * max(t, 0)))
             h += surge * wall
+            # Solid water stops just above the coping; the rest is plume.
+            h = min(h, PIER_H + 2)
             f = foam_at(dist, phi, s, wx)
             if surge * wall > 1.5:
                 f = 2 if surge * wall > 5 else max(f, 1)
-            if 0 <= bt <= 1 and c >= SW - 1 - (4 + 18 * bt):
+            if 0 <= bt <= 1 and c >= SW_L - 1 - (4 + 18 * bt):
                 if hashv(c + int(bt * 20), i) < (1 - bt) * 0.9:
                     f = max(f, 1)
             hs.append(clamp(int(round(h)), 2, SH - 2))
@@ -168,19 +267,63 @@ def shore(p):
                 foam.append(f"M{c} {tops[c]}h1v1h-1z")
             if f == 2:
                 foam.append(f"M{c} {tops[c] - 1}h1v1h-1z")
-        # Spray: launched from the top of the surge, arcing back over the sea
-        wall_top = hs[-1]
-        for lo, vx, vy in parts:
-            ft = i - impact - 2 - lo
-            if ft < 0:
+
+        # --- the face: white water hugging the wall as the crest hits ---
+        k = i - impact
+        if 0 <= k <= 4:
+            jet = [PIER_H + 5, PIER_H + 12, PIER_H + 17, PIER_H + 14, PIER_H + 8][k]
+            for y in range(hs[-1] - 2, jet):
+                for dc in (-2, -1, 0, 1):
+                    c = SW_L - 1 + dc
+                    lean = (y - PIER_H) / 6          # leans inland as it rises
+                    cc = int(c + max(0, lean) * (0.6 if dc >= 0 else 0.3))
+                    if hashv(cc * 5 + y, i) < 0.85 - 0.15 * abs(dc + 0.5) - 0.02 * (y - PIER_H):
+                        px(cc, y, bottom)
+
+        # --- plume: up past the lighthouse and raining down ---
+        for x, y, streak in plume.get(i, []):
+            xi, yi = int(x), int(round(y))
+            gi = hs[xi] if 0 <= xi < SW_L else PIER_H
+            if yi <= gi:
                 continue
-            x = SW - 1 + vx * ft
-            y = 13 + vy * ft - 0.22 * ft * ft
-            if x < 0 or y < 4 or y <= (hs[int(x)] if 0 <= int(x) < SW else 0):
-                continue
-            foam.append(f"M{int(x)} {bottom - int(y)}h1v1h-1z")
+            px(xi, yi, bottom)
+            if streak:
+                px(xi, yi - 1, bottom)
+
+        # --- water on the pier, running back to the edge ---
+        d = sheet.get(i)
+        fade = min(1.0, (N - 1 - i) / 5)       # nothing left when the loop wraps
+        if d:
+            d = [x * fade for x in d]
+            for c, dep in enumerate(d):
+                col = SW_L + c
+                if dep >= 0.9:
+                    # dark body with a broken white top, so it reads against
+                    # the waves behind
+                    n = int(round(min(dep, 4)))
+                    water.append(f"M{col} {bottom - PIER_H - n}h1v{n}h-1z")
+                    if hashv(col, i) < 0.85:
+                        px(col, PIER_H + n, bottom)
+                    if n >= 3 and hashv(col * 7, i) < 0.35:
+                        px(col, PIER_H + 1 + int(hashv(col, i * 3) * (n - 1)), bottom)
+                elif dep >= 0.3 and hashv(col * 3, i) < dep:
+                    px(col, PIER_H + 1, bottom)
+
+        # --- pouring off the edge back into the sea ---
+        amt = pour.get(i, 0) * fade
+        if amt > 0.05:
+            for y in range(hs[-1] + 1, PIER_H + 1):
+                for c in (SW_L - 1, SW_L - 2):
+                    if hashv(c * 7 + y, i) < min(0.9, amt * 1.2):
+                        px(c, y, bottom)
+            # and churn where it lands
+            for c in range(SW_L - 5, SW_L):
+                if hashv(c * 13, i) < min(0.8, amt):
+                    px(c, hs[c] + 1, bottom)
+
     total = N * SH
-    return f'''<svg viewBox="0 0 {SW} {total}" shape-rendering="crispEdges">
+    width = SW_L + SW_R
+    return f'''<svg viewBox="0 0 {width} {total}" shape-rendering="crispEdges">
             <path style="fill:var(--front-light)" d="{''.join(light)}"/>
             <path style="fill:var(--front)" d="{''.join(water)}"/>
             <path style="fill:var(--foam)" d="{''.join(foam)}"/>
@@ -241,7 +384,7 @@ if __name__ == "__main__":
         vbw = SHEET if n == "front" else 1000
         svg = svg.replace("{VBW}", str(vbw)).replace("{PX0}", "0")
         html = html.replace("{{" + n + "}}", svg)
-    for k, v in dict(N=N, HF=HF, CYCLE=CYCLE, LOOP=LOOP, SW=SW, SH=SH, LIFT=LIFT, SHEET=SHEET).items():
+    for k, v in dict(N=N, HF=HF, CYCLE=CYCLE, LOOP=LOOP, SW=SW, SWL=SW_L, SH=SH, LIFT=LIFT, SHEET=SHEET).items():
         html = html.replace("{{" + k + "}}", f"{v:g}")
     open(out, "w").write(html)
     print("bytes", len(html), "wall column", XW)

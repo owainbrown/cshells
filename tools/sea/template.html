@@ -73,7 +73,7 @@
   .site-header {
     position: relative;
     overflow: hidden;
-    padding: 3rem 16px calc(var(--px) * 52 + 8px);
+    padding: 2rem 16px calc(var(--px) * 38 + 8px);   /* the scene's top 6 rows of sky sit behind the text */
     background: var(--sky);
     font-family: "Press Start 2P", ui-monospace, monospace;
   }
@@ -85,7 +85,7 @@
     z-index: 1;
     margin: 0;
     font-weight: 400;
-    font-size: clamp(18px, 6.2vw, 48px);
+    font-size: clamp(22px, 7.2vw, 48px);
     line-height: 1.2;
     letter-spacing: 0;          /* ch maths depends on this */
     white-space: nowrap;
@@ -93,15 +93,14 @@
   .title > span, .typed > span { vertical-align: top; }
   .prompt { color: var(--muted); margin-right: 0.5ch; display: inline-block; }
 
-  /* Intro: "c shells" types in. After that the clip is released so the
-     line simply follows the width of the word being edited. */
+  /* Intro: "c shells" types in. The clip opens to 10ch, room for
+     "sea shells", so the edit loop never has to widen it. The last two
+     steps reveal nothing and read as a pause. */
   .typed {
     display: inline-block;
     overflow: hidden;
     max-width: 0;
-    animation:
-      type 2s steps(8, end) 0.4s forwards,
-      release 0.01s steps(1, end) 2.5s forwards;
+    animation: type 2.5s steps(10, end) 0.4s forwards;
   }
 
   /* The pun, as a terminal edit on a loop:
@@ -147,8 +146,8 @@
   .tagline {
     position: relative;
     z-index: 1;
-    margin: 1rem 0 0;
-    font-size: clamp(9px, 2.8vw, 16px);
+    margin: 0.6rem 0 0;
+    font-size: clamp(13px, 3.6vw, 22px);
     line-height: 1.6;
     color: var(--muted);
     opacity: 0;
@@ -156,9 +155,11 @@
   }
 
   /* ---------- Sun / moon ---------- */
+  /* The sun's height follows the sun over Seaham (static/js/sun.js sets
+     --sun-y). Without script, or at night in the dark theme, it sits high. */
   .sun {
     position: absolute;
-    top: calc(var(--px) * 2);
+    top: calc(var(--px) * var(--sun-y, 2));
     right: calc(var(--pier-w) + var(--px) * 30);
     width: calc(var(--px) * 12);
     height: calc(var(--px) * 12);
@@ -176,7 +177,7 @@
   .sea {
     position: absolute;
     left: 0; right: 0; bottom: 0;
-    height: calc(var(--px) * 52);
+    height: calc(var(--px) * 44);
     overflow: hidden;
     pointer-events: none;
   }
@@ -203,9 +204,9 @@
     bottom: 0;
   }
 
-  .layer--back  { top: calc(var(--px) * 18); }
-  .layer--mid   { top: calc(var(--px) * 26); }
-  .layer--front { top: calc(var(--px) * 33); }
+  .layer--back  { top: calc(var(--px) * 10); }
+  .layer--mid   { top: calc(var(--px) * 18); }
+  .layer--front { top: calc(var(--px) * 25); }
   /* The front sheet is pinned to the pier face, so the same tile column
      always meets the wall and the break lines up with the arriving crest
      at every screen width. */
@@ -220,11 +221,13 @@
      Waves roll right into the pier's seaward face. The last stretch of
      the front layer before the wall is redrawn by the same wave model with
      shoaling, surge, spray and backwash, so it joins the open sea without
-     a seam and breaks exactly when a crest arrives. */
+     a seam and breaks exactly when a crest arrives. The overlay also covers
+     the pier and lighthouse, so the break can spill over the wall and
+     spray past the tower, and it is drawn after them in the markup. */
   .splash {
     position: absolute;
-    right: var(--pier-w);
-    top: calc(var(--px) * (33 - {{LIFT}}));
+    right: calc(var(--pier-w) - var(--px) * ({{SW}} - {{SWL}}));
+    top: calc(var(--px) * (25 - {{LIFT}}));
     width: calc(var(--px) * {{SW}});
     height: calc(var(--px) * {{SH}});
     overflow: hidden;
@@ -238,7 +241,7 @@
   .pier {
     position: absolute;
     right: 0; bottom: 0;
-    top: calc(var(--px) * 38);
+    top: calc(var(--px) * 30);
     width: var(--pier-w);
     background:
       linear-gradient(var(--stone-top) 0 calc(var(--px) * 2), transparent 0),
@@ -251,7 +254,7 @@
   }
   .lighthouse {
     position: absolute;
-    top: calc(var(--px) * 10);
+    top: calc(var(--px) * 2);
     right: calc(var(--pier-w) - var(--px) * 15);
     width: calc(var(--px) * 12);
     height: calc(var(--px) * 28);
@@ -279,8 +282,7 @@
   }
 
   /* ---------- Keyframes ---------- */
-  @keyframes type    { to { max-width: 8ch; } }
-  @keyframes release { to { max-width: 40ch; } }
+  @keyframes type    { to { max-width: 10ch; } }
   @keyframes blink   { 50% { opacity: 0; } }
   @keyframes appear  { to { opacity: 1; } }
   @keyframes bob     { 50% { transform: translateY(var(--px)); } }
@@ -360,9 +362,7 @@
       <i class="glint" style="left:18%; top:calc(var(--px) * 18); --d:5.9s; --o:-2.3s"></i>
       <i class="glint" style="left:36%; top:calc(var(--px) * 18); --d:9.4s; --o:-6.6s"></i>
     </div>
-    <div class="splash"><div class="splash-sheet">
-      {{shore}}
-    </div></div>
+
     <div class="pier"></div>
     <div class="lighthouse">
       <svg viewBox="0 0 12 28" shape-rendering="crispEdges">
@@ -374,6 +374,9 @@
         <path style="fill:var(--tower-dark)" d="M5 16h2v1h-2z"/>
       </svg>
     </div>
+    <div class="splash"><div class="splash-sheet">
+      {{shore}}
+    </div></div>
   </div>
 </header>
 
