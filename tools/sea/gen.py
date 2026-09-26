@@ -377,14 +377,14 @@ def cloud(rows):
             f'<path style="fill:var(--cloud)" d="{pixels(rows, "#")}"/>'
             f'<path style="fill:var(--cloud-shade)" d="{pixels(rows, "+")}"/></svg>')
 
-# Gull poses, 7 x 4. A few wingbeats, then a long glide.
+# Gull poses, 7 x 4. Two wingbeats, then a long glide.
 GULL = {
     "up":    ["#.....#", ".#...#.", "..###..", "......."],
     "level": [".......", "##...##", "..###..", "......."],
     "down":  [".......", ".......", ".#####.", "#.....#"],
     "glide": [".......", ".#...#.", "#.###.#", "......."],
 }
-BIRD_FRAMES = ["up", "level", "down", "level"] * 3 + ["glide"] * 20
+BIRD_FRAMES = ["up", "level", "down", "level"] * 2 + ["glide"] * 24
 BIRD_N = len(BIRD_FRAMES)
 
 def gull_sheet():
