@@ -1,4 +1,5 @@
 <header class="cs-titlebar">
+  <div class="cs-titlebar__cloud" aria-hidden="true">{{ partial "sea-cloud.html" . }}</div>
   <div class="cs-titlebar__inner">
     <a class="cs-titlebar__name" href="{{ "/" | relURL }}" aria-label="C Shells, home"><span class="cs-titlebar__prompt" aria-hidden="true">%</span><span aria-hidden="true"><span class="cs-titlebar__word">sea</span> shells</span><span class="cs-titlebar__cursor" aria-hidden="true"></span></a>
     <nav class="cs-titlebar__nav" aria-label="Main">
@@ -6,13 +7,16 @@
       <a href="{{ "about/" | relURL }}"{{ if eq .RelPermalink ("about/" | relURL) }} aria-current="page"{{ end }}>About</a>
     </nav>
   </div>
-  <svg class="cs-titlebar__sea" aria-hidden="true" shape-rendering="crispEdges">
-    <defs><pattern id="tb-sea" width="64" height="12" patternUnits="userSpaceOnUse">
-      <path class="w2" d="M0 12V8H8V6H16V4H32V6H40V8H64V12Z"/>
-      <path class="w1" d="M0 8H8V10H0ZM8 6H16V8H8ZM16 4H32V6H16ZM32 6H40V8H32ZM40 8H64V10H40Z"/>
-      <path class="fm" d="M20 2H28V4H20Z"/>
-      <rect class="w3" x="0" y="10" width="64" height="2"/>
-    </pattern></defs>
-    <rect width="100%" height="12" fill="url(#tb-sea)"/>
-  </svg>
+  {{/* A still of the home page scene: the same waves, pier and lighthouse. */}}
+  <div class="cs-titlebar__scene" aria-hidden="true">
+    <div class="cs-titlebar__sun sun"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><path fill="currentColor" d="M4 1H8V2H10V4H11V8H10V10H8V11H4V10H2V8H1V4H2V2H4Z"/></svg></div>
+    {{ partial "sea-strip.html" . }}
+    <div class="cs-titlebar__pier"></div>
+    <svg class="cs-titlebar__lighthouse" viewBox="0 0 12 28" shape-rendering="crispEdges">
+      <path style="fill:var(--tower-dark)" d="M5 0h2v1h-2zM4 1h4v1h-4zM3 2h6v1h-6zM3 3h1v4h-1zM8 3h1v4h-1zM1 7h10v1h-10zM2 8h8v1h-8z"/>
+      <rect style="fill:var(--lamp)" x="4" y="3" width="4" height="4"/>
+      <path style="fill:var(--tower-light)" d="M3 9h6v3h-6zM3 15h6v3h-6zM2 21h8v3h-8z"/>
+      <path style="fill:var(--tower-dark)" d="M3 12h6v3h-6zM2 18h8v3h-8zM2 24h8v4h-8zM5 16h2v1h-2z"/>
+    </svg>
+  </div>
 </header>

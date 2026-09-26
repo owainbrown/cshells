@@ -1,10 +1,10 @@
 // Puts the header sun where the real sun is over Seaham.
-// Sets --sun-y (in art pixels from the top of the sea) on .sun from the
+// Sets --sun-y (in art pixels from the top of the home sea) on every .sun from the
 // solar elevation. Light theme only: in the dark theme the same shape is the
 // moon, which stays where the stylesheet puts it.
 (function () {
-  var sun = document.querySelector('.site-header .sun');
-  if (!sun) return;
+  var suns = document.querySelectorAll('.sun');
+  if (!suns.length) return;
 
   var LAT = 54.84, LON = -1.34;          // Seaham North Pier
   var rad = Math.PI / 180;
@@ -40,8 +40,11 @@
   }
 
   function update() {
-    if (isDark()) { sun.style.removeProperty('--sun-y'); return; }
-    sun.style.setProperty('--sun-y', String(Math.round(rowFor(elevation(new Date())))));  // whole art pixels
+    var row = isDark() ? null : String(Math.round(rowFor(elevation(new Date()))));  // whole art pixels
+    for (var i = 0; i < suns.length; i++) {
+      if (row === null) suns[i].style.removeProperty('--sun-y');
+      else suns[i].style.setProperty('--sun-y', row);
+    }
   }
 
   update();

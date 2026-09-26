@@ -377,6 +377,42 @@ def cloud(rows):
             f'<path style="fill:var(--cloud)" d="{pixels(rows, "#")}"/>'
             f'<path style="fill:var(--cloud-shade)" d="{pixels(rows, "+")}"/></svg>')
 
+# ---------- Still strip for the sub-page title bar ----------
+STRIP_R = 30                                     # rows tall: home sea rows 10-40
+STRIP_OFF = {"back": 0, "mid": 8, "front": 15}   # the home layer tops, less 10 rows
+STRIP_PHI = {"back": 0.42, "mid": 0.36, "front": 0.30}
+
+def strip():
+    """One still frame of the three layers, tiled, for the title bar."""
+    out = []
+    for name in ("back", "mid", "front"):
+        p, phi, off = params[name], STRIP_PHI[name], STRIP_OFF[name]
+        s = smooth(phi)
+        hs, fs = [], []
+        for x in range(W):
+            h, dist, _, wx = column(x, phi, p)
+            hs.append(clamp(int(round(h)), 2, HF - 2))
+            fs.append(foam_at(dist, phi, s, wx))
+        tops = [HF - h for h in hs]
+        foam = "".join(f"M{x} {tops[x] - (1 if f == 2 else 0)}h1v{2 if f == 2 else 1}h-1z" for x, f in enumerate(fs) if f)
+        out.append(f'''<pattern id="st-{name}" width="{W}" height="{HF}" patternUnits="userSpaceOnUse" y="{off}">
+      <path style="fill:var(--{name}-light)" d="{stair(tops, 0, HF)}"/>
+      <path style="fill:var(--{name})" d="{stair([t + 1 for t in tops], 0, HF)}"/>
+      <path style="fill:var(--foam)" d="{foam}"/>
+    </pattern>''')
+    rects = []
+    for name in ("back", "mid", "front"):
+        off = STRIP_OFF[name]
+        rects.append(f'<rect y="{off}" width="800" height="{HF}" fill="url(#st-{name})"/>')
+        if name == "front":
+            rects.append(f'<rect y="{off + HF}" width="800" height="1" style="fill:var(--front)"/>')
+            rects.append(f'<rect y="{off + HF + 1}" width="800" height="{STRIP_R}" style="fill:var(--deep)"/>')
+        else:
+            rects.append(f'<rect y="{off + HF}" width="800" height="{STRIP_R}" style="fill:var(--{name})"/>')
+    return (f'<svg class="cs-titlebar__sea" viewBox="0 0 800 {STRIP_R}" preserveAspectRatio="xMinYMin slice" '
+            f'shape-rendering="crispEdges" aria-hidden="true">\n  <defs>\n    ' + "\n    ".join(out) +
+            "\n  </defs>\n  " + "\n  ".join(rects) + "\n</svg>")
+
 # ---------- Title loop: a terminal edit, c -> sea -> c ----------
 LOOP = 14.0
 events = [
@@ -432,4 +468,7 @@ if __name__ == "__main__":
     for k, v in dict(N=N, HF=HF, CYCLE=CYCLE, LOOP=LOOP, SW=SW, SWL=SW_L, SH=SH, LIFT=LIFT, SHEET=SHEET).items():
         html = html.replace("{{" + k + "}}", f"{v:g}")
     open(out, "w").write(html)
+    import os
+    open(os.path.join(os.path.dirname(out) or ".", "strip.svg"), "w").write(strip())
+    open(os.path.join(os.path.dirname(out) or ".", "cloud.svg"), "w").write(cloud(CLOUDS["c"]))
     print("bytes", len(html), "wall column", XW)
