@@ -226,6 +226,12 @@ a { color: var(--accent-text); }
 .page { max-width: var(--content-max); margin: 0 auto; padding: var(--space-12) var(--space-4) var(--space-16); display: grid; gap: var(--space-8); }
 @media (min-width: 640px) { .page { padding-inline: var(--space-8); } }
 .intro { margin: 0; font-size: 21px; line-height: 32px; max-width: var(--measure); text-wrap: pretty; }
+.intro p { margin: 0; }
+/* Phones: tighter top of page and a slightly smaller intro. */
+@media (max-width: 640px) {
+  .page { padding-top: var(--space-6); gap: var(--space-6); }
+  .intro { font-size: 18px; line-height: 27px; }
+}
 .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-4); border-bottom: 4px solid var(--ink); padding-bottom: var(--space-2); margin-bottom: var(--space-6); }
 .section-head h2 { margin: 0; font: 800 30px/36px var(--font-heading); letter-spacing: -0.015em; }
 .section-head a { font-size: 15px; }
