@@ -4,7 +4,7 @@ title = "C Shells"
 enableRobotsTXT = true
 
 [params]
-  description = "Notes on building mobile apps and the tools around them, from an engineering manager who still writes the code."
+  description = "Notes on building apps and the tools around them, from an engineering manager who still writes code."
   author = "Owain Brown"
   tagline = "by the sea shore"
   github = "https://github.com/owainbrown/cshells"

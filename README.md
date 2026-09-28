@@ -1,6 +1,6 @@
 # C Shells
 
-Source for [cshellsbytheseashore.dev](https://cshellsbytheseashore.dev): notes on building mobile apps and the tools around them.
+Source for [cshellsbytheseashore.dev](https://cshellsbytheseashore.dev): notes on building apps and the tools around them.
 
 Built with [Hugo](https://gohugo.io) 0.166.0 and deployed to GitHub Pages on every push to `main`. Decisions are recorded in [docs/adr](docs/adr).
 
